@@ -1,0 +1,14 @@
+{
+  "name": "dns-doh",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "author": "NetBlocks Team <team@netblocks.org>",
+  "homepage": "https://netblocks.org/",
+  "license": "MIT",
+  "keywords": [
+    "dns",
+    "DoH",
+    "DNS-over-HTTPS"
+  ]
+}
