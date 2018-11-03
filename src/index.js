@@ -1,8 +1,6 @@
 const axios = require('axios');
 
-var SERVER_URL = 'https://dns.google.com/resolve';
-
-function query (hostname) {
+function query (hostname, SERVER_URL) {
   return axios({
     url: SERVER_URL,
     responseType: 'json',
