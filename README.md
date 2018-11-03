@@ -1,7 +1,5 @@
 ## dns-doh
 
-<img src="https://netblocks.org/images/art/netblocks-hardware-probes.png" width="200px" align="right" />
-
 ``dns-doh`` is a simple isomorphic DNS-over-HTTPS client library. This module is
 a work in progress at the IETF103 hackathon and not yet for production use.
 
