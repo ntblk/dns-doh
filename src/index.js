@@ -1,17 +1,21 @@
 const axios = require('axios');
 
-/*
-params: {
-ID: 12345
-},
-*/
+var SERVER_URL = 'https://dns.google.com/resolve';
 
-axios({
-  url: 'https://dns.google.com/resolve?name=example.com&type=AAAA',
-  responseType: 'json',
-  headers: {
-    accept: 'application/dns-json',
-  }
-}).then (res => {
-  console.log(res.data);
-});
+function query (hostname) {
+  return axios({
+    url: SERVER_URL,
+    responseType: 'json',
+    params: {
+      name: hostname,
+      type: 'A',
+    },
+    headers: {
+      accept: 'application/dns-json',
+    }
+  }).then (res => {
+    return res.data;
+  });
+}
+
+module.exports = {query};
