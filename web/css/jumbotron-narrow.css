@@ -77,3 +77,11 @@ body {
     border-bottom: 0;
   }
 }
+
+.marketing div {
+  font-size: 18px;
+}
+
+.marketing div img {
+  width: 20px;
+}

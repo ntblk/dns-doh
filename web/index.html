@@ -80,7 +80,7 @@
     <!-- Use this ugly thing to load server list onto DOM -->
     <script type="text/javascript">
       $.each(serverList, function(num, val) {
-        $('#listservers').append("<div class='col-lg-6'><h4>" + val.dname + " <span id='doh-status-" + num + "'></span></h4>" + "<p>Response: <span id='doh-response-" + num + "'></span></p>" + "<p>Latency: <span id='doh-latency-" + num + "'></span></p>" + "</div>");
+        $('#listservers').append("<div class='col-lg-6'><h3>" + val.dname + " <span id='doh-status-" + num + "'></span></h3>" + "<p>Response: <span id='doh-response-" + num + "'></span></p>" + "<p>Latency: <span id='doh-latency-" + num + "'></span></p>" + "</div>");
       });
     </script>
     <!-- Script that activates when domain name is submitted -->
@@ -97,9 +97,10 @@
         //iterate over DOH servers, perform request, and handle response
         $.each(serverList, function(num, val) {
           var reqURL = val.url + URL;
+          var reqTime = Date.now();
           fetch(reqURL, {headers: {accept: 'application/dns-json'}})
           .then(res => res.json())
-          .then(res => handleResponse(res, num));
+          .then(res => handleResponse(res, num, reqTime));
         })
       }
     </script>
@@ -108,10 +109,12 @@
     <script type="text/javascript">
       
       //handles response for given xth DOH Server
-      function handleResponse(dohResponse, y) {
+      function handleResponse(dohResponse, y, reqTime) {
         //to-do: check if response is valid
+        var responseTime = Date.now();
         var response = dohResponse.Answer[0].data;
-        var latency = dohResponse.Answer[0].TTL;
+        var latency = responseTime - reqTime;
+        //var latency = dohResponse.Answer[0].TTL;
         console.log(dohResponse);
 
         $('#doh-response-' + y).text(response);
