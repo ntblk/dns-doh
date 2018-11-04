@@ -5,9 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <link href="img/favicon.ico" rel="icon" type="image/x-icon" />
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
 
     <title>DNS over HTTPS</title>
 
@@ -41,7 +41,7 @@
       </div>
 
       <div class="jumbotron">
-        <h2>DNS over HTTP tests</h2>
+        <h2>DNS over HTTPS tests</h2>
         <p class="lead">Enter the domain name you want to resolve.</p>
         <form action="javascript:void(0);">
           <div class="form-group">
@@ -52,54 +52,101 @@
         </form>
       </div>
 
-      <div class="row marketing">
+      <div class="row marketing" id="listservers">
         
+        <!-- example div, these are generated through js -->
+        <!--
         <div class="col-lg-6">
-          <h4>Cloudflare</h4>
-          <p>Response: <a id="cloudfareResponse"></a></p>
-          <p>Latency: </p>
+          <h4>Cloudflare <span id="doh-status-0"></span></h4>
+          <p>Response: <span id="doh-response-0"></span></p>
+          <p>Latency: <span id="doh-latency-0"></span></p>
         </div>
-
-        <div class="col-lg-6">
-          <h4>Google</h4>
-          <p>Response: </p>
-          <p>Latency: </p>
-        </div>
+        -->
+        <!-- end example div -->
 
       </div>
 
       <footer class="footer">
-        <p>IETF103 Hackathon</p>
+        <p>Fork on <a href="https://github.com/ntblk/dns-doh">Github</a>.</p>
       </footer>
 
-    </div> <!-- /container -->
+    </div>
 
-    <!-- JS Time -->
-
-    <script src="js/jquery-3.3.1.min.js"></script>
-
-
-    <script>
+  <!-- JS Time -->
+    <!-- Load jQuery -->
+    <script src="js/jquery-3.3.1.min.js"></script>  
+    <!-- Load Server Lists -->
+    <script src="js/servers.js"></script>
+    <!-- Use this ugly thing to load server list onto DOM -->
+    <script type="text/javascript">
+      $.each(serverList, function(num, val) {
+        $('#listservers').append("<div class='col-lg-6'><h4>" + val.dname + " <span id='doh-status-" + num + "'></span></h4>" + "<p>Response: <span id='doh-response-" + num + "'></span></p>" + "<p>Latency: <span id='doh-latency-" + num + "'></span></p>" + "</div>");
+      });
+    </script>
+    <!-- Script that activates when domain name is submitted -->
+    <script type="text/javascript">
       function runTests() {
-        var dohServerList = ['https://cloudflare-dns.com/dns-query', 'https://dns.google.com/resolve', 'https://dns9.quad9.net/dns-query', 'https://doh.powerdns.org', 'https://doh.blahdns.com/dns-query', 'https://doh-de.blahdns.com/dns-query', 'https://dns.dns-over-https.com/dns-query', 'https://doh.securedns.eu/dns-query', 'https://dns.rubyfish.cn/dns-query', 'https://commons.host'];
+        //to-do: validate form value here, should only accept domain names
+        //construct string for request
         var domainName = $('#domainField').val();
         var URL = '?name=' + domainName + '&type=A';
-        //+ '&callback=mycallback' 
 
-        for(var i = 0, size = dohServerList.length; i < size ; i++) {
-           var dohServer = dohServerList[i];
-           var reqURL = dohServer + URL;
-           fetch(reqURL, {headers: {accept: 'application/dns-json'}})
-           .then(res => res.json())
-           .then(res => console.log(res));
-        }
+        //make loading gifs appear next to names
+        setLoading();
+
+        //iterate over DOH servers, perform request, and handle response
+        $.each(serverList, function(num, val) {
+          var reqURL = val.url + URL;
+          fetch(reqURL, {headers: {accept: 'application/dns-json'}})
+          .then(res => res.json())
+          .then(res => handleResponse(res, num));
+        })
       }
     </script>
-    <!--
-    <script>
-      fetch('https://cloudflare-dns.com/dns-query?name=example.com&type=A', {headers: {accept: 'application/dns-json'}}).then(res => res.json()).then(res => console.log(res))
+
+    <!-- Response Functions -->
+    <script type="text/javascript">
+      
+      //handles response for given xth DOH Server
+      function handleResponse(dohResponse, y) {
+        //to-do: check if response is valid
+        var response = dohResponse.Answer[0].data;
+        var latency = dohResponse.Answer[0].TTL;
+        console.log(dohResponse);
+
+        $('#doh-response-' + y).text(response);
+        $('#doh-latency-' + y).text(latency + ' ms');
+
+        setSuccess(y);
+      }
     </script>
-    -->
+    <!-- End Response Functions -->
+
+    
+    <!-- Status Functions -->
+    <script type="text/javascript">
+
+      //set loading icon for all DOH servers
+      function setLoading() {
+        $.each(serverList, function(num, val) {
+        var idForStatusChange = '#doh-status-' + num;
+        $(idForStatusChange).html('<img src="img/status-loading.gif">');
+      })
+      }
+
+      //set success icon for given xth DOH server
+      function setSuccess(x) {
+        var idForStatusChange = '#doh-status-' + x;
+        $(idForStatusChange).html('<img src="img/good.png">')
+      }
+
+      //set failure icon for given xth DOH server
+      function setFailure(x) {
+        var idForStatusChange = '#doh-status-' + x;
+        $(idForStatusChange).html('<img src="img/bad.png">')
+      }
+    </script>
+    <!-- End Status Functions -->
 
   </body>
 </html>
